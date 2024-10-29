@@ -20,7 +20,7 @@ class ValidationTest {
     }
 
     @Test
-    void testRunValidations() {
+    void testCheckSponsorExits() {
         Validation validation = new Validation();
         Sponsor sponsor = new Sponsor("Some Sponsor", "sponsor@example.com", 324);
         assertTrue(validation.checkSponsorExits(324));
