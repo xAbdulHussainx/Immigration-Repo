@@ -124,5 +124,42 @@ public class TestDatabase {
             System.err.println("Error fetching application details: " + e.getMessage());
         }
     }
+
+        public static String getSponsorStatus(String sponsorId) {
+        String query = "SELECT status FROM Sponser WHERE idSponser = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, sponsorId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("status");
+            } else {
+                return null; // Sponsor ID not found
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public static boolean validateEmployerCredentials(String username, String password) {
+        String query = "SELECT Password FROM Employer WHERE Username = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+    
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+    
+            if (rs.next()) {
+                String dbPassword = rs.getString("Password");
+                return dbPassword.equals(password);
+            }
+            return false; // Username not found
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
 
