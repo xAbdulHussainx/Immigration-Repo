@@ -4,11 +4,13 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -22,66 +24,136 @@ public class ImmigrationSponsorshipLogin extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Immigration Sponsorship");
 
-        // Title
         Text title = new Text("Immigration Sponsorship");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 24));
 
-        // Sponsor Login Section
-        GridPane sponsorLoginPane = createLoginSection("Sponsor Login");
+        VBox sponsorLoginPane = createSponsorLoginSection(primaryStage);
 
-        // Employer Login Section
-        GridPane employerLoginPane = createLoginSection("Employer Login");
+        VBox employerLoginPane = createEmployerLoginSection(primaryStage);
 
-        // Layout the main screen with the title and both login sections
-        VBox mainLayout = new VBox(20, title, sponsorLoginPane, employerLoginPane);
+        HBox loginSections = new HBox(20, sponsorLoginPane, employerLoginPane);
+        loginSections.setAlignment(Pos.CENTER);
+
+        VBox mainLayout = new VBox(20, title, loginSections);
         mainLayout.setPadding(new Insets(20, 20, 20, 20));
         mainLayout.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(mainLayout, 400, 600);
+        Scene scene = new Scene(mainLayout, 600, 400);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-    private GridPane createLoginSection(String loginTitle) {
-        // Create the layout for each login section
-        GridPane loginPane = new GridPane();
-        loginPane.setAlignment(Pos.CENTER);
-        loginPane.setHgap(10);
-        loginPane.setVgap(10);
-        loginPane.setPadding(new Insets(20, 20, 20, 20));
+    private VBox createSponsorLoginSection(Stage primaryStage) {
+        VBox sponsorPane = new VBox(10);
+        sponsorPane.setPadding(new Insets(20, 20, 20, 20));
+        sponsorPane.setAlignment(Pos.CENTER);
 
-        // Title for each section
-        Text loginLabel = new Text(loginTitle);
+        Text loginLabel = new Text("Sponsor Login");
         loginLabel.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 18));
-        loginPane.add(loginLabel, 0, 0, 2, 1);
 
-        // Username Label and Field
-        Label userLabel = new Label("Username:");
+        Label userLabel = new Label("Unique ID:");
         TextField userTextField = new TextField();
-        loginPane.add(userLabel, 0, 1);
-        loginPane.add(userTextField, 1, 1);
 
-        // Password Label and Field
-        Label pwLabel = new Label("Password:");
-        PasswordField pwBox = new PasswordField();
-        loginPane.add(pwLabel, 0, 2);
-        loginPane.add(pwBox, 1, 2);
-
-        // Login Button
         Button loginButton = new Button("Login");
-        HBox buttonBox = new HBox(10);
-        buttonBox.setAlignment(Pos.CENTER_RIGHT);
-        buttonBox.getChildren().add(loginButton);
-        loginPane.add(buttonBox, 1, 3);
 
-        // You can add functionality to the login button here if needed
         loginButton.setOnAction(e -> {
-            String username = userTextField.getText();
-            String password = pwBox.getText();
-            System.out.println(loginTitle + " - Username: " + username + ", Password: " + password);
-            // Add validation logic here
+            String sponsorId = userTextField.getText();
+            String status = TestDatabase.getSponsorStatus(sponsorId);
+
+            if (status == null) {
+                showAlert("Error", "Sponsor ID not found!");
+            } else {
+                showProgressScreen(primaryStage, status);
+            }
         });
 
-        return loginPane;
+        Hyperlink createFormLink = new Hyperlink("Create a new form");
+        createFormLink.setFont(Font.font("Arial", 14));
+        createFormLink.setOnAction(e -> openSponsorForm());
+
+        sponsorPane.getChildren().addAll(loginLabel, userLabel, userTextField, loginButton, createFormLink);
+        return sponsorPane;
+    }
+
+    private VBox createEmployerLoginSection(Stage primaryStage) {
+        VBox employerPane = new VBox(10);
+        employerPane.setPadding(new Insets(20, 20, 20, 20));
+        employerPane.setAlignment(Pos.CENTER);
+
+        Text loginLabel = new Text("Employer Login");
+        loginLabel.setFont(Font.font("Arial", FontWeight.SEMI_BOLD, 18));
+
+        Label usernameLabel = new Label("Username:");
+        TextField usernameField = new TextField();
+
+        Label passwordLabel = new Label("Password:");
+        PasswordField passwordField = new PasswordField();
+
+        Button loginButton = new Button("Login");
+
+        loginButton.setOnAction(e -> {
+            String username = usernameField.getText();
+            String password = passwordField.getText();
+
+            if (TestDatabase.validateEmployerCredentials(username, password)) {
+                openEmployeeScreen(primaryStage); // Close the current window after opening EmployeeScreen
+            } else {
+                showAlert("Error", "Invalid username or password!");
+            }
+        });
+
+        employerPane.getChildren().addAll(loginLabel, usernameLabel, usernameField, passwordLabel, passwordField, loginButton);
+        return employerPane;
+    }
+
+    private void openSponsorForm() {
+        try {
+            SponsorForm sponsorForm = new SponsorForm();
+            Stage sponsorFormStage = new Stage();
+            sponsorForm.start(sponsorFormStage);
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Unable to open Sponsor Form");
+        }
+    }
+
+    private void openEmployeeScreen(Stage primaryStage) {
+        try {
+            EmployeeScreen employeeScreen = new EmployeeScreen();
+            Stage employeeScreenStage = new Stage();
+            employeeScreen.start(employeeScreenStage);
+
+            // Close the Immigration Sponsorship Login window
+            primaryStage.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Unable to open Employee Screen");
+        }
+    }
+
+    private void showProgressScreen(Stage primaryStage, String status) {
+        Text progressTitle = new Text("Progress");
+        progressTitle.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+
+        Label statusLabel = new Label("Status: " + status);
+        statusLabel.setFont(Font.font("Arial", 16));
+
+        Button returnButton = new Button("Return to Main Menu");
+        returnButton.setOnAction(e -> start(primaryStage));
+
+        VBox progressLayout = new VBox(20, progressTitle, statusLabel, returnButton);
+        progressLayout.setPadding(new Insets(20, 20, 20, 20));
+        progressLayout.setAlignment(Pos.CENTER);
+
+        Scene progressScene = new Scene(progressLayout, 400, 300);
+        primaryStage.setScene(progressScene);
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
