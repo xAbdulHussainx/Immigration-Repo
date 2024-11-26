@@ -8,7 +8,7 @@ public class TestDatabase {
     // JDBC URL, username, and password of MySQL server
     private static final String URL = "jdbc:mysql://localhost:3306/cs321";
     private static final String USER = "root";
-    private static final String PASSWORD = "pass"; // replace with your MySQL password
+    private static final String PASSWORD = "pocjimkarXag-cihte98"; // replace with your MySQL password
 
     // JDBC variables for opening, closing connection and statement
     private static Connection connection;
@@ -126,7 +126,7 @@ public class TestDatabase {
     }
 
         public static String getSponsorStatus(String sponsorId) {
-        String query = "SELECT status FROM Sponser WHERE idSponser = ?";
+        String query = "SELECT status FROM sponsor WHERE unique_id = ?";
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 

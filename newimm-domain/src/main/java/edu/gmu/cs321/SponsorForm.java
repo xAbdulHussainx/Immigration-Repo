@@ -207,7 +207,20 @@ public class SponsorForm extends Application {
 
                     // Action for back button
                     backButton.setOnAction(backEvent -> {
-                        primaryStage.setScene(new Scene(grid, 650, 700)); // Return to the original grid
+                        try {
+                            // Create a new EmployeeScreen instance
+                            ImmigrationSponsorshipLogin loginScreen = new ImmigrationSponsorshipLogin();
+                            Stage loginStage = new Stage();
+                            
+                            // Start the EmployeeScreen
+                            loginScreen.start(loginStage);
+                            
+                            // Close the current SponsorForm window
+                            primaryStage.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            errorMessage.setText("Unable to open login Screen.");
+                        }
                     });
 
                     // Update the scene to show the success message
