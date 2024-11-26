@@ -78,7 +78,7 @@ public class EmployeeScreen extends Application {
         filterBox.setPadding(new Insets(10));
         filterBox.getChildren().addAll(reviewedFilter, inProgressFilter, pendingFilter, searchField);
 
-        TestDataBase db = new TestDataBase();
+        TestDatabase db = new TestDatabase();
         List<String> applications = new ArrayList<>();
 
         // Fetch applications from database
@@ -125,7 +125,7 @@ public class EmployeeScreen extends Application {
 
     private void showReviewPage(String applicationId) {
         this.selectedApplicationId = applicationId;
-        TestDataBase db = new TestDataBase();
+        TestDatabase db = new TestDatabase();
         StringBuilder details = new StringBuilder();
         db.fetchApplicationDetails(applicationId, details);
 
@@ -174,7 +174,7 @@ public class EmployeeScreen extends Application {
 
         Button submitButton = new Button("Submit");
         submitButton.setOnAction(e -> {
-            TestDataBase db = new TestDataBase();
+            TestDatabase db = new TestDatabase();
             db.updateApplicationStatus(selectedApplicationId, "Updated");
             showSuccessScreen();
         });
