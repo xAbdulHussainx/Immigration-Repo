@@ -64,5 +64,65 @@ public class TestDatabase {
         }
         return 0;
     }
+    
+    public boolean fetchApplicationsForEmployee(int employeeId, List<String> applications) {
+        String query = "SELECT application_id FROM workflow WHERE employee_id = ?";
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setInt(1, employeeId);
+            ResultSet rs = stmt.executeQuery();
+
+            applications.clear();
+            while (rs.next()) {
+                applications.add(rs.getString("application_id"));
+            }
+            return !applications.isEmpty();
+        } catch (SQLException e) {
+            System.err.println("Error fetching applications for employee: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public void updateApplicationStatus(String applicationId, String status) {
+        String query = "UPDATE workflow SET status = ? WHERE application_id = ?";
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, status);
+            stmt.setString(2, applicationId);
+            int rowsUpdated = stmt.executeUpdate();
+
+            if (rowsUpdated > 0) {
+                System.out.println("Application status updated successfully.");
+            } else {
+                System.out.println("No application found with ID: " + applicationId);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error updating application status: " + e.getMessage());
+        }
+    }
+
+    public void fetchApplicationDetails(String applicationId, StringBuilder details) {
+        String query = "SELECT * FROM applications WHERE application_id = ?";
+        try (Connection connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, applicationId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                details.setLength(0);
+                details.append("ID: ").append(rs.getString("application_id"))
+                       .append(", Name: ").append(rs.getString("applicant_name"))
+                       .append(", Status: ").append(rs.getString("status"));
+            } else {
+                details.setLength(0);
+                details.append("Application not found.");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching application details: " + e.getMessage());
+        }
+    }
 }
 
