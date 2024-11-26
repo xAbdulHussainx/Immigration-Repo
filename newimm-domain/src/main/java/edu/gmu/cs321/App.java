@@ -1,14 +1,13 @@
 package edu.gmu.cs321;
 
-/**
- * Hello world!
- *
- */
-public class App 
+import javafx.application.Application;
+
+public class App
 {
     public static void main( String[] args )
     {
-        
-        System.out.println( "Hello World!" );
+        Application.launch(EmployeeScreen.class, args);
+        Application.launch(ImmigrationSponsorshipLogin.class, args);
+        Application.launch(SponsorForm.class, args);
     }
 }

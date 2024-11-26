@@ -1,10 +1,14 @@
+package edu.gmu.cs321;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -29,7 +33,7 @@ public class EmployeeScreen extends Application {
 
         reviewFormButton.setOnAction(e -> showApplicationSearchScreen());
         sendUpdatesButton.setOnAction(e -> showSendUpdateScreen());
-        workflowTableButton.setOnAction(e -> blankScreen("Workflow Table"));
+        workflowTableButton.setOnAction(e -> workflowTableScreen());
 
         VBox layout = new VBox(15);
         layout.setPadding(new Insets(20));
@@ -62,8 +66,12 @@ public class EmployeeScreen extends Application {
         window.setTitle("Send Application Update");
 
         Label updateLabel = new Label("Send Application Update");
+
         TextArea updateTextArea = new TextArea();
         updateTextArea.setPromptText("Enter update message here...");
+
+        TextArea updateEmailTextArea = new TextArea();
+        updateEmailTextArea.setPromptText("Enter Applicant's Email here");
 
         Button submitButton = new Button("Submit");
         submitButton.setOnAction(e -> showSuccessScreen());
@@ -95,23 +103,40 @@ public class EmployeeScreen extends Application {
         window.setScene(successScene);
     }
 
-    private void blankScreen(String title) {
-        window.setTitle(title);
+    private void workflowTableScreen() {
+        window.setTitle("Workflow Table");
 
-        Label placeholderLabel = new Label(title + " - Blank Screen");
+        Label workflowLabel = new Label("Workflow Table");
+
+        CheckBox reviewedFilter = new CheckBox("Reviewed");
+        CheckBox inProgressFilter = new CheckBox("In Progress");
+        CheckBox pendingFilter = new CheckBox("Pending");
+
+        TextField searchField = new TextField();
+        searchField.setPromptText("Search by application ID or name");
+
+        HBox filterBox = new HBox(10);
+        filterBox.getChildren().addAll(reviewedFilter, inProgressFilter, pendingFilter, searchField);
+
+        VBox applicationList = new VBox(10);
+        int i = 1;
+        while (i <= 10) {
+            Label applicationLabel = new Label("Application " + i);
+            applicationList.getChildren().add(applicationLabel);
+            i++;
+        }
+
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(applicationList);
+        scrollPane.setFitToWidth(true);
 
         Button goBackButton = new Button("Go Back <--");
         goBackButton.setOnAction(e -> showEmployeeDashboard());
 
         VBox layout = new VBox(15);
-        layout.setPadding(new Insets(20));
-        layout.getChildren().addAll(placeholderLabel, goBackButton);
+        layout.getChildren().addAll(workflowLabel, filterBox, scrollPane, goBackButton);
 
-        Scene blankScene = new Scene(layout, 300, 200);
-        window.setScene(blankScene);
-    }
-
-    public static void main(String[] args) {
-        launch(args);
+        Scene workflowScene = new Scene(layout, 400, 300);
+        window.setScene(workflowScene);
     }
 }
