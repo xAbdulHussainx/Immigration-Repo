@@ -2,10 +2,15 @@ package edu.gmu.cs321;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
+import java.sql.Date;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 public class SponsorForm extends Application {
@@ -132,9 +137,13 @@ public class SponsorForm extends Application {
         grid.add(stayLabel, 0, 12);
         grid.add(stayField, 1, 12);
 
-        // For now we only added a checkbox but we still need a method to upload a file or an image.
-        CheckBox financialSupportCheckbox = new CheckBox("Proof of Financial Support Provided");
-        grid.add(financialSupportCheckbox, 1, 13);
+        // Sponsor income.
+        Label sponsorIncome_Label = new Label("Sponsor income:");
+        TextField sponsorIncome_Field = new TextField();
+        sponsorIncome_Field.setPromptText("Enter income (Ex. $100,000)");
+        
+        grid.add(sponsorIncome_Label, 0, 13);
+        grid.add(sponsorIncome_Field, 1, 13);
 
         // Agreement Checkbox
         CheckBox agreementCheckbox = new CheckBox("I agree that the information provided is accurate.");
@@ -144,12 +153,71 @@ public class SponsorForm extends Application {
         Button submitButton = new Button("SUBMIT");
         grid.add(submitButton, 1, 15);
 
+        // Label for error message (initially empty)
+        Label errorMessage = new Label();
+        errorMessage.setTextFill(Color.RED);  // Set text color to red
+        grid.add(errorMessage, 1, 16);  // Adding the error message below the submit button
+
         submitButton.setOnAction(event -> {
-            if (validateForm(nameField, DOB_pick, genderComboBox, nationalityField, phoneField, emailField, relationshipField, caseTypeComboBox, agreementCheckbox)) {
-                // Presently we are not processing the inputed data. Moving forward we intend to integrate a database that will store all this data.
-                System.out.println("Form submitted successfully!");
+            if (validateForm(nameField, DOB_pick, genderComboBox, nationalityField, phoneField, emailField, relationshipField, sponsorIncome_Field, agreementCheckbox, addressArea, sponsorshipReasonArea)) {
+                
+                // generating unique ID.
+                Random random = new Random();
+                int num = 100000 + random.nextInt(900000);
+                String unique_id = String.valueOf(num);
+
+                // Retrieve form data
+                String fullName = nameField.getText();
+                Date dob = Date.valueOf(DOB_pick.getValue());
+                String gender = genderComboBox.getValue();
+                String nationality = nationalityField.getText();
+                String phone = phoneField.getText();
+                String email = emailField.getText();
+                String relationship = relationshipField.getText();
+                String caseType = caseTypeComboBox.getValue();
+                String sponsorshipReason = sponsorshipReasonArea.getText();
+                String applicantName = applicantNameField.getText();
+                Date applicantDob = Date.valueOf(applicantDobPicker.getValue());
+                String intendedStay = stayField.getText();
+                String sponsorIncome = sponsorIncome_Field.getText();
+                boolean isAgreed = agreementCheckbox.isSelected();
+                String address = addressArea.getText();
+
+                int form_status = TestDatabase.createSponsor(fullName, dob, gender, nationality, phone, email, relationship, caseType, sponsorshipReason, applicantName, applicantDob, intendedStay, unique_id, sponsorIncome, isAgreed, address);
+
+                // Create a new grid for the success message
+                GridPane successGrid = new GridPane();
+                successGrid.setPadding(new Insets(10));
+                successGrid.setHgap(10);
+                successGrid.setVgap(13);
+
+                if(form_status > 0){
+
+                    // Success message
+                    Label successMessage = new Label("Form submitted successfully!\n" + "  " + "Your unique ID is: " + unique_id);
+                    successGrid.add(successMessage, 0, 0);
+                    successMessage.setTextFill(Color.GREEN);
+
+                    // Center the success message and back button
+                    successGrid.setAlignment(Pos.CENTER);
+
+                    // Back to main menu button
+                    Button backButton = new Button("Go Back to Main Menu");
+                    successGrid.add(backButton, 0, 1);
+
+                    // Action for back button
+                    backButton.setOnAction(backEvent -> {
+                        primaryStage.setScene(new Scene(grid, 650, 700)); // Return to the original grid
+                    });
+
+                    // Update the scene to show the success message
+                    primaryStage.setScene(new Scene(successGrid, 650, 200)); // Adjust height as needed
+    
+                } else if (form_status <= 0) {
+                    errorMessage.setText("Could not create sponsor.");
+                }
             } else {
-                System.out.println("Please complete all required fields correctly.");
+                errorMessage.setText("Please complete all required fields correctly.");
             }
         });
 
@@ -160,12 +228,12 @@ public class SponsorForm extends Application {
     }
 
     // Form Validation Method
-    private boolean validateForm(TextField nameField, DatePicker dobPicker, ComboBox<String> genderComboBox, TextField nationalityField, TextField phoneField, TextField emailField, TextField relationshipField, ComboBox<String> caseTypeComboBox, CheckBox agreementCheckbox) {
+    private boolean validateForm(TextField nameField, DatePicker dobPicker, ComboBox<String> genderComboBox, TextField nationalityField, TextField phoneField, TextField emailField, TextField relationshipField, TextField sponsorIncome_Field, CheckBox agreementCheckbox, TextArea addressArea, TextArea sponsorshipReasonArea) {
         boolean Valid = true;
         
         // Check if required fields are filled
         // For now we are only checking if the fields are filled, since most of the checking and validation will be done by an immigration officer.
-        if (nameField.getText().isEmpty() || dobPicker.getValue() == null || genderComboBox.getValue() == null || nationalityField.getText().isEmpty() || phoneField.getText().isEmpty() || emailField.getText().isEmpty() || relationshipField.getText().isEmpty() || caseTypeComboBox.getValue() == null || !agreementCheckbox.isSelected()) {
+        if (nameField.getText().isEmpty() || dobPicker.getValue() == null || genderComboBox.getValue() == null || nationalityField.getText().isEmpty() || phoneField.getText().isEmpty() || emailField.getText().isEmpty() || relationshipField.getText().isEmpty() || relationshipField.getText().isEmpty() || !agreementCheckbox.isSelected()|| addressArea.getText().isEmpty()|| sponsorshipReasonArea.getText().isEmpty()) {
             Valid = false;
         }
 
