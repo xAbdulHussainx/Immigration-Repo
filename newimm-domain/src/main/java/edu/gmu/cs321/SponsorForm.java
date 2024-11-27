@@ -6,6 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -149,14 +150,48 @@ public class SponsorForm extends Application {
         CheckBox agreementCheckbox = new CheckBox("I agree that the information provided is accurate.");
         grid.add(agreementCheckbox, 1, 14);
 
+        // Create an HBox for the buttons
+        HBox buttonBox = new HBox(10); // Add spacing between buttons
+        buttonBox.setAlignment(Pos.BOTTOM_RIGHT); // Align buttons to the bottom-right
+
         // Submit Button
         Button submitButton = new Button("SUBMIT");
-        grid.add(submitButton, 1, 15);
 
         // Label for error message (initially empty)
         Label errorMessage = new Label();
         errorMessage.setTextFill(Color.RED);  // Set text color to red
         grid.add(errorMessage, 1, 16);  // Adding the error message below the submit button
+
+        // Cancel Button
+        Button cancelButton = new Button("CANCEL");
+        buttonBox.getChildren().addAll(cancelButton, submitButton); // Add buttons in order
+        grid.add(buttonBox, 1, 15); // Place the button box in the last row
+
+        cancelButton.setOnAction(event -> {
+            // Confirmation dialog before canceling
+            Alert cancelAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            cancelAlert.setTitle("Cancel Form");
+            cancelAlert.setHeaderText("Are you sure you want to cancel?");
+            cancelAlert.setContentText("All entered data will be lost.");
+
+            cancelAlert.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    try {
+                        // Redirect to ImmigrationSponsorshipLogin
+                        ImmigrationSponsorshipLogin loginScreen = new ImmigrationSponsorshipLogin();
+                        Stage loginStage = new Stage();
+
+                        // Start the login menu
+                        loginScreen.start(loginStage);
+
+                        // Close the SponsorForm window
+                        primaryStage.close();
+                    } catch (Exception e) {
+                        errorMessage.setText("Unable to return to login menu.");
+                    }
+                }
+            });
+        });
 
         submitButton.setOnAction(event -> {
             if (validateForm(nameField, DOB_pick, genderComboBox, nationalityField, phoneField, emailField, relationshipField, sponsorIncome_Field, agreementCheckbox, addressArea, sponsorshipReasonArea)) {
