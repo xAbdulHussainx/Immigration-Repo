@@ -154,45 +154,6 @@ public class EmployeeScreen extends Application {
         window.setScene(searchScene);
     }
     
-    
-    private void showIDFoundScreen(String applicationId) {
-        window.setTitle("ID Found");
-    
-        Label foundLabel = new Label("Application ID Found: " + applicationId);
-        foundLabel.setFont(Font.font(null, FontWeight.BOLD, 20));
-    
-        Button sendUpdatesButton = new Button("Send Updates");
-        sendUpdatesButton.setFont(Font.font(null, FontWeight.BOLD, 14));
-        sendUpdatesButton.setOnAction(e -> showSendUpdateScreen(applicationId));
-    
-        Button approveButton = new Button("Approve");
-        approveButton.setFont(Font.font(null, FontWeight.BOLD, 14));
-        approveButton.setOnAction(e -> {
-            updateApplicationStatus(applicationId, "Approved");
-            showEmployeeDashboard();
-            showAlert("Success", "Application successfully approved.");
-        });
-    
-        Button denyButton = new Button("Deny");
-        denyButton.setFont(Font.font(null, FontWeight.BOLD, 14));
-        denyButton.setOnAction(e -> {
-            updateApplicationStatus(applicationId, "Denied");
-            showEmployeeDashboard();
-            showAlert("Success", "Application successfully denied.");
-        });
-    
-        Button goBackButton = new Button("Go Back <--");
-        goBackButton.setFont(Font.font(null, FontWeight.BOLD, 14));
-        goBackButton.setOnAction(e -> showApplicationSearchScreen());
-    
-        VBox layout = new VBox(20);
-        layout.setPadding(new Insets(30));
-        layout.getChildren().addAll(foundLabel, sendUpdatesButton, approveButton, denyButton, goBackButton);
-    
-        Scene foundScene = new Scene(layout, 500, 400);
-        window.setScene(foundScene);
-    }
-    
     private void showLoginScreen() {
         ImmigrationSponsorshipLogin loginScreen = new ImmigrationSponsorshipLogin();
         loginScreen.start(window);
@@ -322,32 +283,6 @@ public class EmployeeScreen extends Application {
 
         Scene updateScene = new Scene(layout, 500, 500);
         window.setScene(updateScene);
-    }
-
-    private void showApproveDenyPage(String applicationId) {
-        window.setTitle("Approve or Deny Application");
-
-        Label approveDenyLabel = new Label("Approve or Deny the Application");
-        approveDenyLabel.setFont(Font.font(null, FontWeight.BOLD, 20));
-
-        Button approveButton = new Button("Approve");
-        approveButton.setFont(Font.font(null, FontWeight.BOLD, 14));
-        approveButton.setOnAction(e -> updateApplicationStatus(applicationId, "approved"));
-
-        Button denyButton = new Button("Deny");
-        denyButton.setFont(Font.font(null, FontWeight.BOLD, 14));
-        denyButton.setOnAction(e -> updateApplicationStatus(applicationId, "denied"));
-
-        Button goBackButton = new Button("Go Back <--");
-        goBackButton.setFont(Font.font(null, FontWeight.BOLD, 14));
-        goBackButton.setOnAction(e -> workflowTableScreen());
-
-        VBox layout = new VBox(20);
-        layout.setPadding(new Insets(30));
-        layout.getChildren().addAll(approveDenyLabel, approveButton, denyButton, goBackButton);
-
-        Scene approveDenyScene = new Scene(layout, 500, 300);
-        window.setScene(approveDenyScene);
     }
 
     private void updateApplicationStatus(String applicationId, String status) {
