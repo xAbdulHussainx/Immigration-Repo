@@ -161,74 +161,91 @@ public class SponsorForm extends Application {
         submitButton.setOnAction(event -> {
             if (validateForm(nameField, DOB_pick, genderComboBox, nationalityField, phoneField, emailField, relationshipField, sponsorIncome_Field, agreementCheckbox, addressArea, sponsorshipReasonArea)) {
                 
-                // generating unique ID.
-                Random random = new Random();
-                int num = 100000 + random.nextInt(900000);
-                String unique_id = String.valueOf(num);
+                // Show confirmation dialog
+                Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+                confirmationAlert.setTitle("Confirm Submission");
+                confirmationAlert.setHeaderText("Are you sure you want to submit?");
+                confirmationAlert.setContentText("Please review your details before submitting.");
 
-                // Retrieve form data
-                String fullName = nameField.getText();
-                Date dob = Date.valueOf(DOB_pick.getValue());
-                String gender = genderComboBox.getValue();
-                String nationality = nationalityField.getText();
-                String phone = phoneField.getText();
-                String email = emailField.getText();
-                String relationship = relationshipField.getText();
-                String caseType = caseTypeComboBox.getValue();
-                String sponsorshipReason = sponsorshipReasonArea.getText();
-                String applicantName = applicantNameField.getText();
-                Date applicantDob = Date.valueOf(applicantDobPicker.getValue());
-                String intendedStay = stayField.getText();
-                String sponsorIncome = sponsorIncome_Field.getText();
-                boolean isAgreed = agreementCheckbox.isSelected();
-                String address = addressArea.getText();
+                // Wait for the user's response
+                confirmationAlert.showAndWait().ifPresent(response -> {
+                    if (response == ButtonType.OK) {
+                        // generating unique ID.
+                        Random random = new Random();
+                        int num = 100000 + random.nextInt(900000);
+                        String unique_id = String.valueOf(num);
 
-                int form_status = TestDatabase.createSponsor(fullName, dob, gender, nationality, phone, email, relationship, caseType, sponsorshipReason, applicantName, applicantDob, intendedStay, unique_id, sponsorIncome, isAgreed, address);
+                        // Retrieve form data
+                        String fullName = nameField.getText();
+                        Date dob = Date.valueOf(DOB_pick.getValue());
+                        String gender = genderComboBox.getValue();
+                        String nationality = nationalityField.getText();
+                        String phone = phoneField.getText();
+                        String email = emailField.getText();
+                        String relationship = relationshipField.getText();
+                        String caseType = caseTypeComboBox.getValue();
+                        String sponsorshipReason = sponsorshipReasonArea.getText();
+                        String applicantName = applicantNameField.getText();
+                        Date applicantDob = Date.valueOf(applicantDobPicker.getValue());
+                        String intendedStay = stayField.getText();
+                        String sponsorIncome = sponsorIncome_Field.getText();
+                        boolean isAgreed = agreementCheckbox.isSelected();
+                        String address = addressArea.getText();
 
-                // Create a new grid for the success message
-                GridPane successGrid = new GridPane();
-                successGrid.setPadding(new Insets(10));
-                successGrid.setHgap(10);
-                successGrid.setVgap(13);
+                        int form_status = TestDatabase.createSponsor(fullName, dob, gender, nationality, phone, email,
+                                relationship, caseType, sponsorshipReason, applicantName, applicantDob, intendedStay,
+                                unique_id, sponsorIncome, isAgreed, address);
 
-                if(form_status > 0){
+                        // Create a new grid for the success message
+                        GridPane successGrid = new GridPane();
+                        successGrid.setPadding(new Insets(10));
+                        successGrid.setHgap(10);
+                        successGrid.setVgap(13);
 
-                    // Success message
-                    Label successMessage = new Label("Form submitted successfully!\n" + "  " + "Your unique ID is: " + unique_id);
-                    successGrid.add(successMessage, 0, 0);
-                    successMessage.setTextFill(Color.GREEN);
+                        if (form_status > 0) {
 
-                    // Center the success message and back button
-                    successGrid.setAlignment(Pos.CENTER);
+                            // Success message
+                            Label successMessage = new Label(
+                                    "Form submitted successfully!\n" + "  " + "Your unique ID is: " + unique_id);
+                            successGrid.add(successMessage, 0, 0);
+                            successMessage.setTextFill(Color.GREEN);
 
-                    // Back to main menu button
-                    Button backButton = new Button("Go Back to Main Menu");
-                    successGrid.add(backButton, 0, 1);
+                            // Center the success message and back button
+                            successGrid.setAlignment(Pos.CENTER);
 
-                    // Action for back button
-                    backButton.setOnAction(backEvent -> {
-                        try {
-                            // Create a new EmployeeScreen instance
-                            ImmigrationSponsorshipLogin loginScreen = new ImmigrationSponsorshipLogin();
-                            Stage loginStage = new Stage();
-                            
-                            // Start the EmployeeScreen
-                            loginScreen.start(loginStage);
-                            
-                            // Close the current SponsorForm window
-                            primaryStage.close();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            errorMessage.setText("Unable to open login Screen.");
+                            // Back to main menu button
+                            Button backButton = new Button("Go Back to Main Menu");
+                            successGrid.add(backButton, 0, 1);
+
+                            // Action for back button
+                            backButton.setOnAction(backEvent -> {
+                                try {
+                                    // Create a new EmployeeScreen instance
+                                    ImmigrationSponsorshipLogin loginScreen = new ImmigrationSponsorshipLogin();
+                                    Stage loginStage = new Stage();
+
+                                    // Start the EmployeeScreen
+                                    loginScreen.start(loginStage);
+
+                                    // Close the current SponsorForm window
+                                    primaryStage.close();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    errorMessage.setText("Unable to open login Screen.");
+                                }
+                            });
+
+                            // Update the scene to show the success message
+                            primaryStage.setScene(new Scene(successGrid, 650, 200)); // Adjust height as needed
+
+                        } else if (form_status <= 0) {
+                            errorMessage.setText("Could not create sponsor.");
                         }
-                    });
-
-                    // Update the scene to show the success message
-                    primaryStage.setScene(new Scene(successGrid, 650, 200)); // Adjust height as needed
-    
-                } else if (form_status <= 0) {
-                    errorMessage.setText("Could not create sponsor.");
-                }
+                    } else if (response == ButtonType.CANCEL) {
+                        // User canceled submission - Do nothing and stay on the sponsor form
+                        System.out.println("Submission canceled. Returning to the form for editing.");
+                    }
+                });
             } else {
                 errorMessage.setText("Please complete all required fields correctly.");
             }
