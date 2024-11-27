@@ -69,11 +69,12 @@ public class ImmigrationSponsorshipLogin extends Application {
 
         Hyperlink createFormLink = new Hyperlink("Create a new form");
         createFormLink.setFont(Font.font("Arial", 14));
-        createFormLink.setOnAction(e -> openSponsorForm());
+        createFormLink.setOnAction(e -> openSponsorForm(primaryStage));
 
         sponsorPane.getChildren().addAll(loginLabel, userLabel, userTextField, loginButton, createFormLink);
         return sponsorPane;
     }
+
 
     private VBox createEmployerLoginSection(Stage primaryStage) {
         VBox employerPane = new VBox(10);
@@ -106,11 +107,12 @@ public class ImmigrationSponsorshipLogin extends Application {
         return employerPane;
     }
 
-    private void openSponsorForm() {
+    private void openSponsorForm(Stage primaryStage) {
         try {
             SponsorForm sponsorForm = new SponsorForm();
             Stage sponsorFormStage = new Stage();
             sponsorForm.start(sponsorFormStage);
+            primaryStage.close();
         } catch (Exception e) {
             e.printStackTrace();
             showAlert("Error", "Unable to open Sponsor Form");
@@ -157,3 +159,4 @@ public class ImmigrationSponsorshipLogin extends Application {
         alert.showAndWait();
     }
 }
+
