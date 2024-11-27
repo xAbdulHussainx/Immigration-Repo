@@ -204,7 +204,7 @@ public class EmployeeScreen extends Application {
         Label workflowLabel = new Label("Workflow Table");
         workflowLabel.setFont(Font.font(null, FontWeight.BOLD, 20));
 
-        CheckBox needsReviewFilter = new CheckBox("Needs to be Reviewed");
+        CheckBox needsReviewFilter = new CheckBox("Denied");
         CheckBox inProgressFilter = new CheckBox("In Progress");
         CheckBox approvedFilter = new CheckBox("Approved");
 
@@ -247,7 +247,7 @@ public class EmployeeScreen extends Application {
         String selectedStatus = null;
 
         if (needsReview.isSelected() && !inProgress.isSelected() && !approved.isSelected()) {
-            selectedStatus = "needs to be reviewed";
+            selectedStatus = "Denied";
         } else if (!needsReview.isSelected() && inProgress.isSelected() && !approved.isSelected()) {
             selectedStatus = "in-progress";
         } else if (!needsReview.isSelected() && !inProgress.isSelected() && approved.isSelected()) {
