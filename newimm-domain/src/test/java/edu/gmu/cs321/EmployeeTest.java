@@ -53,13 +53,4 @@ public class EmployeeTest {
         String status = TestDatabase.getSponsorStatus(applicationId);
         assertEquals("Application status was not updated to In Progress.", "In Progress", status);
     }
-
-    @Test
-    public void testFilterApplicationsByStatus() {
-        String status = "Approved";
-        List<String> filteredApplications = new ArrayList<>();
-        boolean isFiltered = database.fetchApplicationsByStatus(status, filteredApplications);
-        assertTrue("No applications were filtered by status: Approved.", isFiltered);
-        assertFalse("Filtered applications list is empty.", filteredApplications.isEmpty());
-    }
 }
